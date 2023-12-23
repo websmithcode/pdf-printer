@@ -1,5 +1,5 @@
 import fs from "fs";
-import print from "pdf-to-printer";
+import Printers from "./lib/printers.js";
 import { PDFDocument } from 'pdf-lib'
 import { select, input } from '@inquirer/prompts';
 import cliProggress from 'cli-progress';
@@ -9,23 +9,26 @@ const args = process.argv.slice(2);
 const pdf = args[0] ?? await input({ message: "Перетащите PDF файл в окно: " });
 const numOfPages = await PDFDocument.load(fs.readFileSync(pdf)).then(pdf => pdf.getPages().length);
 
-const printers = await print.getPrinters();
+const printers = await Printers.get();
 const printer = await select({
   message: "Выберите принтер: ",
   choices: printers.map(printer => ({ name: printer.name, value: printer.deviceId }))
 })
 
+const pages = Array.from({ length: numOfPages }, (_, i) => i + 1);
+
 const proggress = new cliProggress.SingleBar({}, cliProggress.Presets.shades_classic);
 proggress.start(numOfPages, 0);
-for (let i = 1; i < numOfPages + 1; i++) {
-  proggress.update(i);
 
-  // print.print(pdf, {
-  //   printer: printer,
-  //   pages: i,
-  //   printDialog: false,
-  //   win32: ['-print-settings "fit"']
-  // });
-}
+await Promise.all(pages.map(async page => {
+  await Printers.print(pdf, {
+    printer: printer,
+    pages: String(page),
+    printDialog: false,
+    win32: ['-print-settings "fit"']
+  });
+  proggress.increment();
+}));
+
 proggress.stop();
 exit(0);

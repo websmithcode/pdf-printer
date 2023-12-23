@@ -15,20 +15,18 @@ const printer = await select({
   choices: printers.map(printer => ({ name: printer.name, value: printer.deviceId }))
 })
 
-const pages = Array.from({ length: numOfPages }, (_, i) => i + 1);
-
 const proggress = new cliProggress.SingleBar({}, cliProggress.Presets.shades_classic);
 proggress.start(numOfPages, 0);
 
-await Promise.all(pages.map(async page => {
+for (let i = 0; i < numOfPages; i++) {
   await Printers.print(pdf, {
     printer: printer,
-    pages: String(page),
+    pages: String(i + 1),
     printDialog: false,
     win32: ['-print-settings "fit"']
   });
   proggress.increment();
-}));
+}
 
 proggress.stop();
 exit(0);

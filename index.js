@@ -1,5 +1,5 @@
 import fs from "fs";
-import Printers from "./lib/printers.js";
+import Printers from "./app/lib/printers.js";
 import { PDFDocument } from 'pdf-lib'
 import { select, input } from '@inquirer/prompts';
 import cliProggress from 'cli-progress';

@@ -7,9 +7,9 @@ import { exit } from "process";
 
 async function main() {
   const args = process.argv.slice(2);
-  const pdf = args[0] ?? await input({ message: "Перетащите PDF файл в окно: " });
-  // console log pdf exists
-  console.log("PDF file exists:", fs.existsSync(pdf));
+  const pdf = (args[0] ?? await input({ message: "Перетащите PDF файл в окно: " }))
+    .replace(/^"|"$/g, "");
+
   const numOfPages = await PDFDocument.load(fs.readFileSync(pdf)).then(pdf => pdf.getPages().length);
 
   const printers = await Printers.get();

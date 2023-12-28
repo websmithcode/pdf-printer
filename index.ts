@@ -3,7 +3,7 @@ import { PDFDocument } from "pdf-lib";
 import { select, input } from "@inquirer/prompts";
 import cliProggress from "cli-progress";
 import { exit } from "process";
-import ptpm from "pdf-to-printer-modern";
+import ptpm, { getPagesNumbers } from "pdf-to-printer-modern";
 
 async function print(pdf: string, printer: string, numOfPages: number) {
   try {
@@ -11,17 +11,18 @@ async function print(pdf: string, printer: string, numOfPages: number) {
       message: "Введите страницы к печати: ",
       default: "1-" + numOfPages,
     });
+    const pagesArr = getPagesNumbers(pages).sort((a, b) => a - b);
 
     const proggress = new cliProggress.SingleBar(
       {},
       cliProggress.Presets.shades_classic,
     );
-    proggress.start(numOfPages, 0);
+    proggress.start(pagesArr.length, 0);
 
-    for (let i = 0; i < numOfPages; i++) {
+    for (let i = 0; i < pagesArr.length; i++) {
       await ptpm.print(pdf, {
         printer: printer,
-        pages: pages,
+        pages: String(pagesArr[i]),
         printDialog: false,
       });
       proggress.increment();

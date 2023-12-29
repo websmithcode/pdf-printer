@@ -23,6 +23,7 @@ async function print(pdf: string, printer: string, numOfPages: number) {
       await ptpm.print(pdf, {
         printer: printer,
         pages: String(pagesArr[i]),
+        scale: "noscale", // "noscale" | "fit" | "shrink"
         printDialog: false,
       });
       proggress.increment();
